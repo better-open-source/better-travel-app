@@ -3,9 +3,26 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30517.126
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{684FF5F4-C9D2-472F-9027-BBF9FE9C1DFB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BetterTravel.App", "src\BetterTravel.App\BetterTravel.App.csproj", "{A33329F1-414E-4413-9F1B-8ADA10997FF5}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A33329F1-414E-4413-9F1B-8ADA10997FF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A33329F1-414E-4413-9F1B-8ADA10997FF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A33329F1-414E-4413-9F1B-8ADA10997FF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A33329F1-414E-4413-9F1B-8ADA10997FF5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A33329F1-414E-4413-9F1B-8ADA10997FF5} = {684FF5F4-C9D2-472F-9027-BBF9FE9C1DFB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E9F1596F-509E-441A-A0D2-DC081EA7EFA9}
