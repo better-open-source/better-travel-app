@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+  api:
+    image: bettertravel.api
+    container_name: bettertravel.api
+    networks:
+      - bettertravel
+    build:
+      context: .
+      dockerfile: src/BetterTravel.Api/Dockerfile
+
+networks:
+  bettertravel:
+    name: bettertravel.network
