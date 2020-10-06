@@ -1,0 +1,32 @@
+﻿@page "/hottours"
+@inject HttpClient Http
+
+<h3>Hot Tours</h3>
+
+<p>Fetched hot tours.</p>
+
+<div class="container">
+    @foreach (var row in _viewModels)
+    {
+        <div class="row">
+            @foreach (var data in row)
+            {
+                <HotTourCard Data="data" />
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<List<HotTourViewModel>> _viewModels = new List<List<HotTourViewModel>>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await Http.GetFromJsonAsync<Envelope<List<HotTourViewModel>>>("http://localhost:8888/api/hottours/get");
+        _viewModels = response.Result
+            .Select((x, id) => new {x, id})
+            .GroupBy(x => x.id / 3)
+            .Select(g => g.Select(x => x.x).ToList())
+            .ToList();
+    }
+}
