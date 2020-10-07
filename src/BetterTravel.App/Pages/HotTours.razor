@@ -5,26 +5,45 @@
 
 <p>Fetched hot tours.</p>
 
-<div class="container">
-    @foreach (var row in _viewModels)
+@if (_viewModels is null)
+{
+    @if (_error != null)
     {
-        <div class="row">
-            @foreach (var data in row)
-            {
-                <HotTourCard Data="data" />
-            }
-        </div>
+        <p><em>@_error</em></p>
     }
-</div>
+
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="container">
+        @foreach (var row in _viewModels)
+        {
+            <div class="row">
+                @foreach (var data in row)
+                {
+                    <HotTourCard Data="data" />
+                }
+            </div>
+        }
+    </div>
+}
 
 @code {
-    private List<List<HotTourViewModel>> _viewModels = new List<List<HotTourViewModel>>();
+    private List<List<HotTourViewModel>> _viewModels;
+    private string _error;
 
     protected override async Task OnInitializedAsync()
     {
-        var response = await Http.GetFromJsonAsync<Envelope<List<HotTourViewModel>>>("http://localhost:8888/api/hottours/get");
-        _viewModels = response.Result
-            .Select((x, id) => new {x, id})
+        var response = await Http.GetFromJsonAsync<Envelop<PagedData<HotTourViewModel>>>("http://localhost:8888/api/hottours/get");
+        if (!string.IsNullOrEmpty(response.ErrorMessage))
+        {
+            _error = response.ErrorMessage;
+            return;
+        }
+        
+        _viewModels = response.Result.Data
+            .Select((x, id) => new { x, id })
             .GroupBy(x => x.id / 3)
             .Select(g => g.Select(x => x.x).ToList())
             .ToList();
