@@ -1,15 +1,17 @@
 ﻿@page "/hottours"
+@using BetterTravel.App.ViewModels
+@using MatBlazor
 @inject HttpClient Http
 
 <h3>Hot Tours</h3>
 
 <p>Fetched hot tours.</p>
 
-@if (_viewModels is null)
+@if (_ctx.Data is null)
 {
-    @if (_error != null)
+    @if (_ctx.Error != null)
     {
-        <p><em>@_error</em></p>
+        <p><em>@_ctx.Error</em></p>
     }
 
     <p><em>Loading...</em></p>
@@ -17,7 +19,7 @@
 else
 {
     <div class="container">
-        @foreach (var row in _viewModels)
+        @foreach (var row in _ctx.Data)
         {
             <div class="row">
                 @foreach (var data in row)
@@ -27,25 +29,15 @@ else
             </div>
         }
     </div>
+    <MatPaginator Length="100" PageSize="@_ctx.PageSize" Page="@_ctx.OnPaginationChange" />
 }
 
 @code {
-    private List<List<HotTourViewModel>> _viewModels;
-    private string _error;
+    private HotToursViewModel _ctx;
 
     protected override async Task OnInitializedAsync()
     {
-        var response = await Http.GetFromJsonAsync<Envelop<PagedData<HotTourViewModel>>>("http://localhost:8888/api/hottours/get");
-        if (!string.IsNullOrEmpty(response.ErrorMessage))
-        {
-            _error = response.ErrorMessage;
-            return;
-        }
-        
-        _viewModels = response.Result.Data
-            .Select((x, id) => new { x, id })
-            .GroupBy(x => x.id / 3)
-            .Select(g => g.Select(x => x.x).ToList())
-            .ToList();
+        _ctx = new HotToursViewModel(Http);
+        await _ctx.InitializeContextAsync(this);
     }
 }
