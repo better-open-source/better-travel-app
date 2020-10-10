@@ -2,47 +2,64 @@
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using MatBlazor;
 
 namespace BetterTravel.App.ViewModels
 {
-    public class HotToursViewModel
+    public class HotToursViewModel : BaseViewModel
     {
         private readonly HttpClient _http;
 
-        public HotToursViewModel(HttpClient http) => 
+        public List<List<HotTourViewModel>> Data
+        {
+            get => Get<List<List<HotTourViewModel>>>(); 
+            private set => Set(value);
+        }
+
+        public string Error
+        {
+            get => Get<string>(); 
+            private set => Set(value);
+        }
+
+        public int PageSize
+        {
+            get => Get<int>();
+            private set => Set(value);
+        }
+
+        public int PageIndex
+        {
+            get => Get<int>();
+            private set => Set(value);
+        }
+
+        public HotToursViewModel(HttpClient http)
+        {
             _http = http;
 
-        public List<List<HotTourViewModel>> Data { get; private set; }
-        public string Error { get; private set; }
-        public int PageSize { get; private set; }
-        public int PageIndex { get; private set; }
-
-        public async Task InitializeContextAsync(object view)
-        {
             PageSize = 12;
             PageIndex = 1;
+        }
+
+        protected override async Task LoadDataAsync(CancellationToken cancellationToken)
+        {
+            State = PageState.Loading;
+
+            var take = PageSize;
+            var skip = (PageIndex - 1) * PageSize;
+
+            var requestUri = $"http://localhost:8888/api/hottours/get?take={take}&skip={skip}";
+            var response = await _http.GetFromJsonAsync<Envelop<PagedData<HotTourViewModel>>>(requestUri, cancellationToken);
             
-            await FetchDataAsync(PageSize, PageIndex);
-        }
-
-        public async Task OnPaginationChange(MatPaginatorPageEvent e)
-        {
-            PageSize = e.PageSize;
-            PageIndex = e.PageIndex;
-
-            await FetchDataAsync(PageSize, PageIndex);
-        }
-
-        public async Task FetchDataAsync(int size, int page)
-        {
-            var url = $"http://localhost:8888/api/hottours/get?take={size}&skip={page - 1}";
-            var response = await _http.GetFromJsonAsync<Envelop<PagedData<HotTourViewModel>>>(url);
+            IsLoadDataStarted = false;
 
             if (!string.IsNullOrEmpty(response.ErrorMessage))
             {
                 Error = response.ErrorMessage;
+                State = PageState.Error;
                 return;
             }
 
@@ -51,6 +68,15 @@ namespace BetterTravel.App.ViewModels
                 .GroupBy(x => x.id / 3)
                 .Select(g => g.Select(x => x.x).ToList())
                 .ToList();
+
+            State = Data.Any() ? PageState.Normal : PageState.Clean;
+        }
+
+        public async Task OnPaginationChangeAsync(MatPaginatorPageEvent e)
+        {
+            PageSize = e.PageSize;
+            PageIndex = e.PageIndex;
+            await StartLoadDataAsync();
         }
     }
 }

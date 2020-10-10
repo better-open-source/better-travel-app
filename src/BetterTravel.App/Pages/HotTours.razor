@@ -1,25 +1,33 @@
 ﻿@page "/hottours"
+@inherits BasePage<HotToursViewModel>
+
 @using BetterTravel.App.ViewModels
 @using MatBlazor
-@inject HttpClient Http
 
 <h3>Hot Tours</h3>
 
 <p>Fetched hot tours.</p>
 
-@if (_ctx.Data is null)
+@if (ViewModel.State is PageState.Loading)
 {
-    @if (_ctx.Error != null)
-    {
-        <p><em>@_ctx.Error</em></p>
-    }
-
     <p><em>Loading...</em></p>
 }
-else
+
+@if (ViewModel.State is PageState.Error)
 {
+    <p><em>@ViewModel.Error</em></p>
+}
+
+@if (ViewModel.State is PageState.NoData)
+{
+
+}
+
+@if (ViewModel.State is PageState.Normal)
+{
+    <MatPaginator Length="100" PageSize="@ViewModel.PageSize" Page="@ViewModel.OnPaginationChangeAsync" />
     <div class="container">
-        @foreach (var row in _ctx.Data)
+        @foreach (var row in ViewModel.Data)
         {
             <div class="row">
                 @foreach (var data in row)
@@ -29,15 +37,4 @@ else
             </div>
         }
     </div>
-    <MatPaginator Length="100" PageSize="@_ctx.PageSize" Page="@_ctx.OnPaginationChange" />
-}
-
-@code {
-    private HotToursViewModel _ctx;
-
-    protected override async Task OnInitializedAsync()
-    {
-        _ctx = new HotToursViewModel(Http);
-        await _ctx.InitializeContextAsync(this);
-    }
 }
